@@ -5,3 +5,5 @@ sqlalchemy
 PyMuPDF
 langchain
 llama_index
+langchain_ai21
+python-multipart
