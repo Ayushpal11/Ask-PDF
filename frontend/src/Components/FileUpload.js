@@ -1,4 +1,3 @@
-// FileUpload.js
 import React from 'react';
 
 export default function FileUpload({ pdfId, input, setInput, handleSend, loading }) {

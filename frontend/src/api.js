@@ -1,4 +1,13 @@
-const API_URL = process.env.REACT_APP_API_URL; //Backend Api url from environment variable
+// import axios from "axios";
+
+// const Api = axios.create({
+//     baseURL: "http://localhost:8000", //for localhost connection with FastAPI backend 
+//     // baseURL:".onrender.com"   //connection with deployed backend deployed FastAPI app 
+// })
+
+// export default Api
+
+const API_URL = "http://127.0.0.1:8000" //Backend Api url from environment variable
 
 export const uploadPDF = async (file) => {
     // Create a new FormData object to hold the file data
@@ -25,29 +34,26 @@ export const uploadPDF = async (file) => {
         throw error; // Propagate the error to be handled by the calling function
     }
 };
-
 export const askQuestion = async (pdfId, question) => {
-    // Create a new FormData object to hold the PDF ID and question
-    const formData = new FormData();
-    formData.append("pdf_id", pdfId); // Append the PDF ID
-    formData.append("question", question); // Append the question
-
     try {
-        // Send a POST request to ask a question about the PDF
         const response = await fetch(`${API_URL}/ask_question/`, {
             method: "POST",
-            body: formData,
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                pdf_id: pdfId,
+                question: question
+            }),
         });
 
-        // Check if the response is OK
         if (!response.ok) {
             throw new Error(`Error asking question: ${response.statusText}`);
         }
 
-        // Return the response data as JSON
         return await response.json();
     } catch (error) {
         console.error(error);
-        throw error; // Propagate the error to be handled by the calling function
+        throw error;
     }
 };
