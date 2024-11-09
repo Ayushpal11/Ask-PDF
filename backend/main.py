@@ -1,5 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine
 from app.models import Base, PDFDocument
@@ -8,6 +9,10 @@ import shutil
 import os
 
 app = FastAPI()
+
+@app.get('/')
+async def root():
+    return RedirectResponse(url = '/docs')
 
 # Create all the database tables
 Base.metadata.create_all(bind=engine)
