@@ -101,7 +101,7 @@ import re
 app = FastAPI()
 
 # Set up CORS
-origins = ["*"]
+origins = ["https://pdf-reader-nu.vercel.app/"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
