@@ -33,6 +33,7 @@ joblib
 jsonpatch
 jsonpointer
 langchain
+langchain_huggingface
 langchain-community
 langchain-core
 langchain-text-splitters
