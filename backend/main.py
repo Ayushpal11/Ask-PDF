@@ -177,7 +177,7 @@ def get_answer_from_pdf(pdf_content: str, question: str) -> str:
     context_text = pdf_content[:1500]  # Adjust length based on model limits and content
 
     # Improved prompt for detailed paragraph responses
-    prompt = f"""### Instruction: You are an expert in sociology. Based on the following PDF content, provide a clear, detailed answer to the question. Avoid vague responses, and ensure that the answer is in paragraph form.
+    prompt = f"""### Instruction: Based on the following PDF content, provide a clear, detailed answer to the question. Avoid vague responses, and ensure that the answer is in paragraph form.
     PDF Content:
     \"\"\"
         {context_text}
