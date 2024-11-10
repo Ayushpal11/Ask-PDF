@@ -144,28 +144,64 @@ def process_pdf_text(pdf_path: str) -> str:
         text = extract_text(pdf_file)
     return text
 
+# def get_answer_from_pdf(pdf_content: str, question: str) -> str:
+#     # Set Hugging Face API token
+#     os.environ['HUGGINGFACEHUB_API_TOKEN'] = "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"
+
+#     # Prepare prompt for the model
+#     prompt = f"###Instruction\n{question}\n###Response\n"
+
+#     # Initialize tokenizer and model, ensuring consistent device assignment
+#     device = "cuda" if torch.cuda.is_available() else "cpu"
+#     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+#     model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base").to(device)
+
+#     # Tokenize input prompt, removing token_type_ids if not supported
+#     inputs = tokenizer(prompt, return_tensors="pt").to(device)
+#     if 'token_type_ids' in inputs:
+#         del inputs['token_type_ids']
+
+#     # Generate response tokens with specified parameters
+#     tokens = model.generate(**inputs, max_new_tokens=200, temperature=0.8)
+
+#     # Decode the generated tokens to get the answer text
+#     answer = tokenizer.decode(tokens[0], skip_special_tokens=True)
+
+#     return answer
+
 def get_answer_from_pdf(pdf_content: str, question: str) -> str:
+    # Set Hugging Face API token
     os.environ['HUGGINGFACEHUB_API_TOKEN'] = "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"
 
-    # Prepare prompt for the model
-    prompt = f"###Instruction\n{question}###Response\n"
+    # Prepare a well-formatted prompt for the model
+    prompt = f"### Instruction: Answer the following question based on the PDF content provided.\nContent:\n{pdf_content[:1000]}...\nQuestion: {question}\n### Response:"
 
     # Initialize tokenizer and model
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
-    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base").to("cuda")
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base").to(device)
 
-    # Tokenize input prompt, removing token_type_ids if not supported
-    inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+    # Tokenize input prompt, ensuring it’s loaded onto the correct device
+    inputs = tokenizer(prompt, return_tensors="pt").to(device)
     if 'token_type_ids' in inputs:
-        del inputs['token_type_ids']
+        del inputs['token_type_ids']  # Remove if the model doesn’t support token_type_ids
 
-    # Generate response tokens
-    tokens = model.generate(**inputs, max_new_tokens=200, temperature=0.8)
+    # Generate response tokens with refined parameters
+    tokens = model.generate(
+        **inputs, 
+        max_new_tokens=250,     # Increased token limit for more detailed responses
+        temperature=0.7,        # Lowered temperature for more focused responses
+        num_beams=3,            # Adding beam search for better response quality
+        early_stopping=True     # Stop generation when a coherent response is reached
+    )
 
     # Decode the generated tokens to get the answer text
     answer = tokenizer.decode(tokens[0], skip_special_tokens=True)
 
-    return answer
+    # Log the generated answer for debugging
+    print(f"Generated Answer: {answer}")
+
+    return answer if answer.strip() else "No relevant information found in the document."
 
 # Define Pydantic models for requests and responses
 class PDFUploadResponse(BaseModel):
