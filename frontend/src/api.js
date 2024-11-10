@@ -1,7 +1,7 @@
 
 
-const API_URL = "http://127.0.0.1:8000" //Backend Api url from environment variable
-// const API_URL = "https://pdf-reader-zunu.onrender.com"; //Backend Api url from environment variable
+//const API_URL = "http://127.0.0.1:8000" //Backend Api url from environment variable
+const API_URL = "https://pdf-reader-zunu.onrender.com"; //Backend Api url from environment variable
 
 export const uploadPDF = async (file) => {
     // Create a new FormData object to hold the file data
