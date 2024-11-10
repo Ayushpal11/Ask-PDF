@@ -2,6 +2,13 @@
 
 This full-stack application enables users to upload PDF files and interact with an AI chatbot to ask questions about the content. The app consists of a **React frontend** and a **FastAPI backend**, utilizing a large language model (LLM) from Hugging Face for responses.
 
+[PDF Reader - Design Documentation](https://drive.google.com/file/d/1wYyorCw-VIzZDHzJccu_7WdnwUN_X5qo/view?usp=sharing)
+This document includes:
+- System Architecture
+- Component Design
+- Data Flow
+- Technical Specifications
+
 ---
 
 ## Table of Contents
@@ -115,4 +122,3 @@ For the deployed version, use the following URLs:
 - Ensure that the backend server is running and accessible to the frontend.
 - Adjust CORS settings during development to allow frontend-backend communication.
 - A **Hugging Face access token** is required for backend interaction with the LLM model.
-```
