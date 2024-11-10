@@ -95,6 +95,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.docstore.document import Document as LangchainDocument
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import torch
+import re
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -170,38 +171,67 @@ def process_pdf_text(pdf_path: str) -> str:
 #     return answer
 
 def get_answer_from_pdf(pdf_content: str, question: str) -> str:
-    # Set Hugging Face API token
     os.environ['HUGGINGFACEHUB_API_TOKEN'] = "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"
 
-    # Prepare a well-formatted prompt for the model
-    prompt = f"### Instruction: Answer the following question based on the PDF content provided.\nContent:\n{pdf_content[:1000]}...\nQuestion: {question}\n### Response:"
+    # Limit content length to focus on relevant information
+    context_text = pdf_content[:1500]  # Adjust length based on model limits and content
 
-    # Initialize tokenizer and model
+    # Improved prompt for detailed paragraph responses
+    prompt = f"""### Instruction: You are an expert in sociology. Based on the following PDF content, provide a clear, detailed answer to the question. Avoid vague responses, and ensure that the answer is in paragraph form.
+    PDF Content:
+    \"\"\"
+        {context_text}
+    \"\"\"
+        Question: {question}
+    ### Response:"""
+
+    # Load model and tokenizer
     device = "cuda" if torch.cuda.is_available() else "cpu"
     tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
     model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base").to(device)
 
-    # Tokenize input prompt, ensuring it’s loaded onto the correct device
+    # Prepare model input
     inputs = tokenizer(prompt, return_tensors="pt").to(device)
     if 'token_type_ids' in inputs:
-        del inputs['token_type_ids']  # Remove if the model doesn’t support token_type_ids
+        del inputs['token_type_ids']
 
-    # Generate response tokens with refined parameters
+    # Generate response with refined parameters for more depth
     tokens = model.generate(
-        **inputs, 
-        max_new_tokens=250,     # Increased token limit for more detailed responses
-        temperature=0.7,        # Lowered temperature for more focused responses
-        num_beams=3,            # Adding beam search for better response quality
-        early_stopping=True     # Stop generation when a coherent response is reached
+        **inputs,
+        max_new_tokens=600,
+        temperature=0.3,     
+        top_k=40,             
+        top_p=0.9,           
+        num_beams=6,          
+        early_stopping=True
     )
 
-    # Decode the generated tokens to get the answer text
-    answer = tokenizer.decode(tokens[0], skip_special_tokens=True)
+    # Decode tokens to get the response
+    answer = tokenizer.decode(tokens[0], skip_special_tokens=True).strip()
 
-    # Log the generated answer for debugging
-    print(f"Generated Answer: {answer}")
+    # Post-process for readability
+    answer = clean_answer_text(answer)
+    print(f"Generated Answer:\n{answer}")
+    return answer if answer else "Unable to retrieve relevant information from the document."
 
-    return answer if answer.strip() else "No relevant information found in the document."
+
+
+def clean_answer_text(text: str) -> str:
+    # Replace unusual characters with proper equivalents
+    text = re.sub(r'•', '-', text)  # Convert bullet points
+    text = re.sub(r'\b(par\d+)\b', '', text)  # Remove any unusual encoding artifacts (like "par4" for "part")
+
+    # Fix any multi-space occurrences
+    text = re.sub(r'\s+', ' ', text)
+
+    # Capitalize the beginning of sentences, if necessary
+    text = '. '.join([sentence.strip().capitalize() for sentence in text.split('.')])
+
+    # Add a line break between list items for better readability
+    text = re.sub(r' - ', '\n- ', text)
+
+    # Trim leading/trailing whitespace
+    return text.strip()
 
 # Define Pydantic models for requests and responses
 class PDFUploadResponse(BaseModel):
