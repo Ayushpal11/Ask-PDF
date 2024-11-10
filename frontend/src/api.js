@@ -1,13 +1,7 @@
-// import axios from "axios";
 
-// const Api = axios.create({
-//     baseURL: "http://localhost:8000", //for localhost connection with FastAPI backend 
-//     // baseURL:".onrender.com"   //connection with deployed backend deployed FastAPI app 
-// })
-
-// export default Api
 
 const API_URL = "http://127.0.0.1:8000" //Backend Api url from environment variable
+// const API_URL = "https://pdf-reader-zunu.onrender.com"; //Backend Api url from environment variable
 
 export const uploadPDF = async (file) => {
     // Create a new FormData object to hold the file data
