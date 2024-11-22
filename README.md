@@ -1,4 +1,4 @@
-# PDF Reader
+# Ask-PDF
 
 This full-stack application enables users to upload PDF files and interact with an AI chatbot to ask questions about the content. The app consists of a **React frontend** and a **FastAPI backend**, utilizing a large language model (LLM) from Hugging Face for responses.
 
