@@ -4,9 +4,9 @@ export default function Header({ pdfName, handleFileUpload, handleReset }) {
     return (
         <header className="shadow-lg flex items-center justify-between h-20 min-h-[80px] px-6 sm:px-12">
             <img
-                src="/AI_Planet_Logo.png"
+                src="/newlogo.png"
                 alt="AI Planet Logo"
-                className="h-8 sm:h-12 cursor-pointer"
+                className="h-12 sm:h-20 cursor-pointer"
                 onClick={handleReset} // Reset on clicking logo
             />
             <div className="flex items-center gap-4 h-full">
